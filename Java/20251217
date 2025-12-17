@@ -1,0 +1,195 @@
+[서두]
+- 어제자 진행한 멘토링 관련 질의들을 쭉 정리하다, 상속 관련된 내용이 많이 질의가 나와서 정리해보았다
+
+[내용]
+- 오버라이딩과 오버로딩 관련해서
+오버로딩 : 이름은 같은데 매개변수 모양이 다른 메서드 여러 개
+컴파일 타임에 어떤 메서드를 부를지 결정됨
+리턴 타입만 다르게 해서 오버로딩 할 수는 없음
+
+오버라이딩 : 부모 메서드를 자식이 같은 모양으로 다시 정의해서 갈아끼우는 것
+런타임에 실제 인스턴스 타입에 따라 어떤 메서드가 실행될지 결정됨
+메서드 이름, 매개변수 목록이 완전히 같아야 한다.
+접근 제어자는 더 좁게 만들 수 없음.
+
+- 왜 유독 자바만 오버 로딩이 많을까?
+코틀린과 파이썬에서는 그런 사용성이 사라졌다고 한다.
+다른 언어들은 디폴트 파라미터라는 기능이 있는데, 함수의 파라미터 기본 값을 줄 수 있다.
+
+기존에 자바 개발자들이 오버로딩을 자주 사용했던 패턴을 살펴보자.
+메서드 하나가 있고, 파라미터가 5개가 필요하다.
+하지만 매번 바뀌는 파라미터는 2개이고, 3개는 매번 비슷하다.
+비슷한 3개를 매번 똑같이 만들어주는 것은 번거롭기에, 이 때 오버로딩을 사용한다.
+2개 짜리를 만들고, 5개짜리 메서드를 안에서 호출한다. 이 때 파라미터 3개 비슷한 친구들은 자동으로 매핑해서 넣어준다.
+
+하지만 만약 디폴트 파라미터가 있다면 우리는 이런 과정조차도 스킵할 수 있다.
+매번 고정으로 주던 파라미터도 기본값이 있으면 해결된다.
+
+- 업 캐스팅과 다운 캐스팅
+업 캐스팅은 자식이 부모 타입으로 변환되는 것.
+상속 관계가 있을 때 가능하다.
+(상속 관계 확인은 instance of를 활용하면 좋다.)
+암시적(자동) 형변환이라 캐스트 연산자 없이도 된다.
+부모 타입으로 보지만, 실제 객체는 여전히 자식이어서 오버라이딩된 메서드는 자식 것이 실행된다.
+class Animal { void sound() {} }
+class Dog extends Animal { @Override void sound() {} }
+
+Animal a = new Dog();   // 업캐스팅 (자동)
+a.sound();              // Dog의 sound() 실행
+다운 캐스팅은 부모 타입에서 자식 타입으로 변환되는 것이라고 생각하면 된다.
+항상 명시적 캐스팅이 필요하다. 실제 그 참조가 가리키는 객체가 해당 자식 타입일 때만 안전하다. 아니라면 ClassCastException 발생
+Animal a = new Dog();   // 업캐스팅
+Dog d = (Dog) a;        // 다운캐스팅 (명시적)
+d.specificMethod();     // Dog 전용 메서드 사용
+업캐스팅/다운캐스팅은 “참조 변수 타입을 어떻게 선언했는지” 기준으로 구분하는 게 포인트다
+
+위 코드에서
+new Dog() → 힙에 Dog 객체 하나 생성.
+참조 변수 타입: Animal (부모)
+실제 객체 타입: Dog (자식)
+“자식을 부모 타입 참조로 받는 것”이므로 업캐스팅이다.
+new로 선언한 것이 실제 객체이니, 아래에서 위로, 자식이 부모를 참조하는 꼴이니 업캐스팅이다.
+
+a를 Dog 타입으로 바꾼 적은 한 번도 없다.
+“Dog였던 걸 Animal로 바꿨다가 다시 Dog로 되돌린 것”이 아니라,
+처음에 Dog 객체를 만들고, 그걸 부모 타입 변수(Animal)로만 바라본 것뿐이다.
+따라서 Dog d = (Dog) a은
+부모 타입 참조 → 자식 타입 참조로 '되돌리기' => 다운캐스팅이다.
+
+- 다운 캐스팅은 런타임 에러가 날 수 있지 않나? 어떻게 방지하나?
+명시적으로 캐스팅해주지 않으면 ClassCastException이 난다. 이는 런타임 에러나 크리티컬 할 수 있다. 어떤 방법으로 방지하는 것이 좋나?
+
+instance of 활용
+Animal a = getAnimal();
+
+if (a instanceof Dog) {
+    Dog d = (Dog) a;   // 안전
+    d.bark();
+} else {
+    // Dog가 아님 → 캐스팅하지 않음
+}
+다운 캐스팅이 필요없게 설계
+다형성 활용
+공통 동작은 부모 클래스/인터페이스에 메서드로 정의하고, 자식이 오버라이드하게 만든다.
+그러면 List 을 돌면서도 animal.doSomething()만 호출하면 되고, 캐스팅이 필요 없다.
+interface Animal { void act(); }
+
+class Dog implements Animal { public void act() { bark(); } }
+class Cat implements Animal { public void act() { meow(); } }
+
+for (Animal a : animals) {
+    a.act();   // 캐스팅 불필요
+}
+안전한 캐스팅 헬퍼 사용 (Optional 등)
+static Optional<Dog> asDog(Animal a) {
+    return (a instanceof Dog) ? Optional.of((Dog) a) : Optional.empty();
+}
+
+
+- 상속보다는 컴포지션이다?
+상속은 강결합이 되기에 컴포지션을 하라는 가이드도 있다.
+“상속보다는 컴포지션을 선호하라(Prefer composition over inheritance)”
+
+- 상속이 가지는 문제
+
+강결합 : 자식이 부모 구현 세부 사항까지 의존하게 되어, 부모를 바꾸면 자식들이 줄줄이 깨지기 쉽다.
+상속 구조가 깊어질수록 변경 영향 범위가 커지고, 예측이 어려워진다.
+유연성 부족 : 다중 상속이 안되기 때문에 행동을 조합해서 섞는 쪽이 어렵다.
+관계가 애매한데도 코드 재사용 때문에 억지로 상속을 쓰면 모델이 틀어지기 쉽다.
+
+컴포지션이 선호되는 이유
+
+약결합 : 필요한 기능을 가진 객체를 필드로 가지고, 그 객체에게 일을 시키는 방식이라, 교체/확장이 쉽다. 인터페이스 + 구현 조합으로 주입하면 테스트, 리팩터링, 기능 교체가 훨씬 유연해진다.
+행동 조합이 쉬움 : 여러 컴포넌트를 필드로 들고 있으면, "로그 + 캐시 + 알림" 같은 식으로 기능을 조합해서 붙였다 뗐다 할 수 있다.
+
+행동을 조합해서 섞는 쪽이 어렵다?
+아직 명확하게 와닿지 않을 수 있어 예시를 첨부한다.
+
+  // 로그 기능을 상속으로 재사용
+class LoggingService {
+    void log(String msg) {
+        System.out.println("[LOG] " + msg);
+    }
+}
+
+// 캐시 기능을 상속으로 재사용
+class CachingService {
+    void putCache(String key, Object value) { /* ... */ }
+    Object getCache(String key) { /* ... */ return null; }
+}
+
+// 자바는 다중 상속 불가 → 둘 다 extends 할 수 없음
+// class MyService extends LoggingService, CachingService {  // 컴파일 에러
+// }
+
+class MyService /* extends ??? */ {
+    // 로그 + 캐시 둘 다 재사용하고 싶은데,
+    // 상속으로는 둘 중 하나만 고를 수 있다.
+}
+하지만 만약 컴포지션을 활용한다면
+class MyService {
+  private final LoggingService logging = new LoggingService();
+  private final CachingService caching = new CachingService();
+
+  void doWork(String key) {
+      logging.log("작업 시작: " + key);
+      Object data = caching.getCache(key);
+      // ...
+  }
+}
+행동(로그와 캐시)을 섞는 것이 훨씬 자유롭다.
+
+관계가 애매한데 코드 재사용 때문에 억지로 상속한 예
+“직원(Employee)”과 “파일 로깅(FileLogger)”은 사실 상속될만한 관계가 아닌데,
+그냥 로그 코드 재사용하려고 상속을 써버린 경우.
+
+  class FileLogger {
+    void logToFile(String msg) {
+        // 파일에 로그 쓰는 코드...
+    }
+}
+
+// 억지 예시: Employee는 로깅이 필요하니까 그냥 상속해버림
+class Employee extends FileLogger {
+    private String name;
+
+    Employee(String name) {
+        this.name = name;
+    }
+
+    void work() {
+        logToFile(name + " 작업 시작");  // 부모 기능 재사용
+        // 실제 업무 로직...
+    }
+}
+우선 도메인 상으로 Employee is-a FileLogger는 전혀 말이 안 된다.
+하지만 상속으로 엮어버리면 Employee가 FileLogger의 모든 변화에 끌려다니게 된다.
+
+이걸 컴포지션으로 바꾸면:
+
+class FileLogger {
+    void logToFile(String msg) { /* ... */ }
+}
+
+class Employee {
+    private final String name;
+    private final FileLogger logger;   // has-a 관계
+
+    Employee(String name, FileLogger logger) {
+        this.name = name;
+        this.logger = logger;
+    }
+
+    void work() {
+        logger.logToFile(name + " 작업 시작");
+        // 실제 업무 로직...
+    }
+}
+Employee has-a Logger라서 의미상 자연스럽다.
+이후 FileLogger 대신 DbLogger, ConsoleLogger 등으로 교체해도 Employee 자체 모델은 그대로 유지된다.
+
+인사이트
+• 상속은 강결합을 유발할 수 있어, 실무에서는 컴포지션을 선호하는 경향이 있다.
+• 오버로딩은 자바에서 디폴트 파라미터가 없기 때문에 자주 사용되며, 함수 시그니처(파라미터 타입, 개수, 순서)로 구분된다.
+• 업캐스팅은 자동으로 안전하게 이루어지지만, 다운캐스팅은 명시적 캐스팅이 필요하고 런타임 에러 위험이 있다.
+• 다운캐스팅의 안전성 확보를 위해 instanceof 연산자를 활용하여 타입을 사전에 검사할 수 있다.
