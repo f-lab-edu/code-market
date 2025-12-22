@@ -1,0 +1,63 @@
+[서두]
+- 멘토링 관련 꼬리 질문 심화 관련 공부한 걸 블로그에 남기다 좋은 부분이 있어 남긴다
+
+[내용]
+- 불변 객체 패턴을 적용할 때 발생할 수 있는 성능 저하 이슈와 그 해결 방법은?
+객체 생성 증가
+상태 변경마다 새 인스턴스를 만드니, 쓰기 연산이 많다면 객체 수가 많이 늘어난다.
+
+> 읽기 위주 값 타입만 강하게 불변으로 설정할 수 있다
+// 값 타입 VO는 강하게 불변
+public final class Money {
+    private final long amount;
+    private final String currency; // ISO 코드
+
+    public Money(long amount, String currency) {
+        this.amount = amount;
+        this.currency = currency;
+    }
+
+    public Money add(Money other) {
+        if (!this.currency.equals(other.currency)) {
+            throw new IllegalArgumentException("Currency mismatch");
+        }
+        return new Money(this.amount + other.amount, this.currency);
+    }
+
+    public long amount() { return amount; }
+    public String currency() { return currency; }
+}
+
+// 엔티티는 부분 불변: id, createdAt 등만 불변, 나머지는 변경 가능
+public class Order {
+    private final Long id;
+    private final Instant createdAt;
+    private Money totalPrice;   // 값 타입은 불변, 필드 레퍼런스는 교체
+
+    public void addLine(Money linePrice) {
+        this.totalPrice = this.totalPrice.add(linePrice);
+    }
+}
+
+- Volatile 키워드와 final 키워드의 차이점 및 활용 시나리오는?
+Volatile: 가시성(visibility)만 보장. 모든 스레드가 메인 메모리에서 최신 값 읽음,
+리오더링 방지.
+원자성/상호배제 안 됨. > 따라서 카운터/복합 연산에 단독 사용하면 위험하다
+
+count++, list.add(), map.put() 같은 복합 연산은 volatile이어도 여전히 Race Condition이 발생한다.
+이런 경우에는 synchronized, AtomicInteger, ConcurrentHashMap 같은 별도의 동시성 도구가 필요하다.
+
+Final: 재할당 불가(상수화). 생성 후 안전하게 보장되며, 멀티스레드에서 초기화된 값 가시성 자동 보장.
+
+활용 시나리오
+Volatile: 플래그 변수 (e.g., volatile boolean running;)
+volatile boolean running, volatile boolean initialized 같이 “단순 상태 플래그”에 사용하여, 한 스레드의 변경을 다른 스레드가 즉시 볼 수 있게 한다.
+
+Final: Immutable 객체 필드 (e.g., final int value;)
+
+- 옵저버 패턴의 실무 적용 사례는?
+객체 상태 변경 추적을 위한 디자인 패턴으로 대표적인 것이 옵저버 패턴이 있다.
+
+예시 1: 버튼 클릭, 텍스트 변경처럼 컴포넌트 상태 변화 → 리스너 호출 구조가 전형적인 옵저버 패턴이다
+에시 2: “회원 가입 완료”, “주문 생성됨”과 같은 도메인 이벤트 객체를 발행하고, 여러 리스너가 이를 구독하여 이메일 발송, 포인트 지급, 로그 기록 등을 처리한다.
+예시 3 : 실생활의 예시로는 SNS 알림이나 주식/코인 시세 알림 등이 있다.
