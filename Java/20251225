@@ -1,0 +1,59 @@
+[서두]
+- 스트링 풀(String Pool)의 동작 원리와 GC(가비지 컬렉션)와의 관계란?
+
+[내용]
+정의
+String Pool(문자열 상수 풀)은 JVM 힙 메모리 내 특별한 영역으로, 문자열 리터럴을 저장·재사용하는 캐시다.
+
+리터럴 vs new 생성 차이
+java
+String s1 = "hello";        // Pool 확인 → 없으면 Pool에 저장, 있으면 재사용
+String s2 = "hello";        // s1과 동일 객체 (s1 == s2 → true)
+String s3 = new String("hello");  // Heap에 새 객체 생성 (s1 == s3 → false)
+동작 과정
+클래스 로딩 시 상수 풀(constant pool)에서 리터럴 추출
+String Pool에 동일 문자열 존재 확인 (interning)
+존재 시: Pool의 참조 반환
+없을 시: Pool에 새 String 객체 생성 후 참조 반환
+
+GC와의 관계
+JDK 6 이하 (PermGen):
+
+String Pool = PermGen 영역
+GC 대상 X (Full GC에서도 거의 안 청소)
+→ OOM 위험 높음
+JDK 7+ (Heap으로 이동):
+
+String Pool = Heap 내 특별 영역
+Young/Old GC 모두 대상
+참조 없으면 → 자동 GC (풀에서 제거)
+JDK 6까지는 StringPool이 PermGen OOM 위험으로 GC 대상이 아니었다가,
+7 이상부터 Heap 내의 특별 영역으로 오게되면 GC의 대상이 되었다는 것이 Point라고 생각하면 되겠다.
+
+GC 동작:
+
+java
+String s5 = "gc-test";  // Pool에 저장
+s5 = null;              // 참조 해제
+System.gc();            // GC 발생 → "gc-test" Pool에서 제거 가능
+String s6 = "gc-test";  // 새로 Pool에 생성 (재사용 X)
+실무 영향:
+
+<장점>
+메모리 절약 (동일 리터럴 공유)
+== 비교 최적화 (참조 비교)
+<주의점>
+new String("x") → Pool 우회 → 메모리 낭비
+대용량 문자열 → Pool 부적합
+
+권장:
+
+java
+// 문자열 비교: equals() 사용 (안전)
+if (s1.equals(s2)) { }
+
+// Pool 활용: 리터럴 위주, new는 계산용
+String key = "user.id";  // Pool
+String value = computeName();  // Heap
+결론
+String Pool은 리터럴 전용 메모리 최적화 + JDK 7+에서 GC 완전 지원으로 안정화됐다.
