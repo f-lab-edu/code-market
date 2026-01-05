@@ -1,3 +1,41 @@
 [서두]
-- 제네릭을 공부하며 공변과 반공변을 공부해보자
+- 제네릭을 공부하며 공변과 반공변을 공부해보았다
 [내용]
+왜 나온 개념인가?
+상속 관계가 제네릭 타입에 어떻게 전파될지를 설명하는 개념
+
+공변(covariant): Cat이 Animal의 하위 타입일 때, List<'Cat'>을 List<? extends Animal>처럼 “읽기 전용”으로 상위 타입처럼 다루게 해 주는 것.
+
+자식 타입을 부모 타입 자리에 넣어 쓸 수 있다는 뜻
+
+반공변(contravariant): Cat이 Animal의 하위 타입일 때, List을 List<? super Cat>처럼 “쓰기 전용”으로 하위 타입 입장에서 다루게 해 주는 것.
+
+자바 제네릭은 기본이 불공변(invariant)라서 List은 List의 하위 타입이 아니고, 그냥 완전히 다른 타입이다.
+
+어떤 문제가 있었는가?
+상속 관계는 Cat → Animal로 잘 정의되어 있는데,
+제네릭 컬렉션 쪽에서는 이 관계를 그대로 쓰면 타입 안전성이 깨질 수 있다는 점이야.
+
+예를 들어, 만약 자바가 List을 List의 하위 타입(공변)으로 허용한다 치면:
+
+java
+List cats = new ArrayList<>();
+List animals = cats; // 공변이면 허용
+animals.add(new Dog()); // Animal이니까 추가 가능
+Cat c = cats.get(0); // 하지만 실제로는 Dog가 들어있을 수 있음
+이건 제네릭이 원래 해결하려던 “컴파일 타임 타입 안정성”을 깨버리게 되지.
+
+그래서 바뀐 자바의 방향
+제네릭은 기본 불공변: List<'Cat'>은 List<'Animal'> 아님.
+→ “실수하는 것부터 막자. 안전이 우선.”
+
+대신, 상황에 따라 공변/반공변을 “부분적으로” 열어주는 문법을 줌:
+
+List<? extends Animal>: 읽기 전용에 가깝게 공변성을 허용 (PECS에서 Producer).
+
+List<? super Cat>: 쓰기 중심으로 반공변성을 허용 (PECS에서 Consumer).
+
+즉, 공변/반공변은 “상속 관계를 제네릭에 그대로 반영하고 싶지만, 타입 안전성을 깨지 않는 선에서 제한적으로 허용하기 위한 개념/문법”이라고 보면 된다.
+
+부분 허용 예시
+https://grey920.github.io/server/java-covariant/#%EA%B3%B5%EB%B3%80-covariance
