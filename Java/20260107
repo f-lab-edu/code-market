@@ -1,0 +1,51 @@
+[서두]
+- 타입 소거 관련해서 제네릭 공부하다가 정리했다.
+좋은 내용들이라 공유한다.
+[내용]
+타입 소거란?
+제네릭 코드는 컴파일 타임에만 타입 체크에 쓰이고, 컴파일이 끝나면 Integer나 String 같은 정보가 사라진다.
+
+컴파일러가 제네릭 같은 타입 파라미터를 제한이 없으면 Object로,
+T extends Number처럼 상한이 있으면 그 상한 타입(여기선 Number)으로 치환해서 바꿔 버린다
+
+Integer 타입의 List와 String 타입의 List은 런타임에는 둘 다 그냥 List로 보인다 → 같은 시그니처라 오버로딩 불가.
+
+런타임에 if (list instanceof List<'String'>) 같은 건 못 쓰고, instanceof List만 가능
+
+왜 생겼나 제네릭은?
+Java 5 이전에는 제네릭이 없어서, 컬렉션 같은 건 전부 Object를 담는 컨테이너
+
+List list = new ArrayList();
+list.add("hello");
+list.add(123);   // 가능
+Object o = list.get(0); // 꺼낼 때는 항상 Object
+String s = (String) o;  // 직접 캐스팅 필요
+타입 안정성이 없음 (런타임까지 버그가 숨어감)
+list 안에 뭐가 들어갈지 컴파일러가 모름.
+잘못된 타입이 들어가도 컴파일은 통과하고, 꺼낼 때 캐스팅하다가 ClassCastException이 런타임에 터짐.
+
+매번 강제 캐스팅 필요 + 가독성 저하
+get()이 항상 Object를 반환하니까, 사용할 때마다 (String) 같은 캐스팅이 필요.
+코드가 지저분해지고, 실수하기 좋음
+
+제네릭 이후
+제네릭은 “타입을 파라미터화해서, 컴파일 시점에 타입을 강하게 체크하게 만든 기능
+
+List<String> list = new ArrayList<>();
+list.add("hello");
+// list.add(123);  // 컴파일 에러: String 아닌 타입은 금지
+
+String s = list.get(0); // 캐스팅 필요 없음
+컴파일 타임 타입 안전성
+List<'String'>이라고 선언하면, 컴파일러가 “여긴 String만 넣어야 해”라고 알고 있음.
+list.add(123) 같은 코드는 컴파일 에러로 막힘.
+잘못된 타입 때문에 발생할 런타임 ClassCastException을 사전에 제거.
+
+캐스팅 제거 + 가독성 향상
+list.get(0)의 타입이 바로 String이라고 컴파일러가 추론할 수 있어서 (String) 캐스팅이 필요 없음.
+IDE도 타입을 알고 있으니까 코드 힌트/자동완성도 정확해지고, 코드 읽기도 쉬워짐.
+
+재사용성 + 유연성
+List<'T'>, Box<'T'>처럼 “타입에 독립적인 로직”을 한 번 정의해 두고, 사용할 때 타입만 바꿔 끼우면 됨.
+
+같은 자료구조를 String, Integer, 커스텀 타입 등 여러 타입으로 재사용 가능
