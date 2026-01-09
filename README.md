@@ -35,6 +35,7 @@ https://github.com/f-lab-edu/code-market/wiki/%EA%B8%B0%EB%8A%A5-%EB%AA%85%EC%84
 # 컴포넌트 다이어그램
 
 # 사용자 시나리오
+https://github.com/f-lab-edu/code-market/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4
 
 # 유스케이스 다이어그램
 
