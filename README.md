@@ -38,6 +38,7 @@ https://github.com/f-lab-edu/code-market/wiki/%EA%B8%B0%EB%8A%A5-%EB%AA%85%EC%84
 https://github.com/f-lab-edu/code-market/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4
 
 # 유스케이스 다이어그램
+https://github.com/f-lab-edu/code-market/wiki/%EC%9C%A0%EC%8A%A4%EC%BC%80%EC%9D%B4%EC%8A%A4-%EB%8B%A4%EC%9D%B4%EC%96%B4%EA%B7%B8%EB%9E%A8
 
 # 시퀀스 다이어그램
 
