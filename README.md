@@ -41,6 +41,7 @@ https://github.com/f-lab-edu/code-market/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%EC%8B
 https://github.com/f-lab-edu/code-market/wiki/%EC%9C%A0%EC%8A%A4%EC%BC%80%EC%9D%B4%EC%8A%A4-%EB%8B%A4%EC%9D%B4%EC%96%B4%EA%B7%B8%EB%9E%A8
 
 # 시퀀스 다이어그램
+https://github.com/f-lab-edu/code-market/wiki/%EC%8B%9C%ED%80%80%EC%8A%A4-%EB%8B%A4%EC%9D%B4%EC%96%B4%EA%B7%B8%EB%9E%A8
 
 ## TIL 브랜치 - 데일리 학습 기록   
 - 그 날의 주요 학습 내용 등을 기록하는 용도의 브랜치입니다. 
