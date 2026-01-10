@@ -34,6 +34,7 @@ Git Flow 예정
 https://github.com/f-lab-edu/code-market/wiki/%EA%B8%B0%EB%8A%A5-%EB%AA%85%EC%84%B8%EC%84%9C
 
 # 컴포넌트 다이어그램
+https://github.com/f-lab-edu/code-market/wiki/%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EB%8B%A4%EC%9D%B4%EC%96%B4%EA%B7%B8%EB%9E%A8
 
 # 사용자 시나리오
 https://github.com/f-lab-edu/code-market/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%EC%8B%9C%EB%82%98%EB%A6%AC%EC%98%A4
