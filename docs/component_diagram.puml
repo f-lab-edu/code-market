@@ -1,0 +1,175 @@
+@startuml
+title Code-Market Architecture (Multi-Module)
+
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+actor Client
+
+component "API Gateway" as APIGW
+Client --> APIGW
+
+' ========================
+' MEMBER
+' ========================
+package "member" {
+
+  package "member-api" {
+    component "MemberController"
+  }
+
+  package "member-application" {
+    component "MemberService"
+    component "AuthService"
+  }
+
+  package "member-domain" {
+    component "MemberEntity" as MemberEntity
+    component "PasswordPolicy"
+  }
+
+  package "member-infra" {
+    component "JpaMemberRepository"
+    component "RedisTokenStore"
+  }
+
+  MemberController --> MemberService
+  MemberController --> AuthService
+  MemberService --> MemberEntity
+  MemberService --> PasswordPolicy
+  MemberService --> JpaMemberRepository
+  AuthService --> RedisTokenStore
+}
+
+APIGW --> MemberController
+
+' ========================
+' PRODUCT
+' ========================
+package "product" {
+
+  package "product-api" {
+    component "ProductController"
+  }
+
+  package "product-application" {
+    component "ProductService"
+  }
+
+  package "product-domain" {
+    component "ProductEntity" as ProductEntity
+    component "StockPolicy"
+  }
+
+  package "product-infra" {
+    component "JpaProductRepository"
+  }
+
+  ProductController --> ProductService
+  ProductService --> ProductEntity
+  ProductService --> StockPolicy
+  ProductService --> JpaProductRepository
+}
+
+APIGW --> ProductController
+
+' ========================
+' CART
+' ========================
+package "cart" {
+
+  package "cart-api" {
+    component "CartController"
+  }
+
+  package "cart-application" {
+    component "CartService"
+  }
+
+  package "cart-domain" {
+    component "CartEntity" as CartEntity
+  }
+
+  package "cart-infra" {
+    component "RedisCartRepository"
+  }
+
+  CartController --> CartService
+  CartService --> CartEntity
+  CartService --> RedisCartRepository
+}
+
+APIGW --> CartController
+
+' ========================
+' ORDER
+' ========================
+package "order" {
+
+  package "order-api" {
+    component "OrderController"
+  }
+
+  package "order-application" {
+    component "OrderService"
+  }
+
+  package "order-domain" {
+    component "OrderEntity" as OrderEntity
+    component "OrderPolicy"
+  }
+
+  package "order-infra" {
+    component "JpaOrderRepository"
+    component "OrderEventPublisher"
+  }
+
+  OrderController --> OrderService
+  OrderService --> OrderEntity
+  OrderService --> OrderPolicy
+  OrderService --> JpaOrderRepository
+  OrderService --> OrderEventPublisher
+
+}
+
+APIGW --> OrderController
+
+' ========================
+' PAYMENT
+' ========================
+package "payment" {
+
+  package "payment-application" {
+    component "PaymentService"
+  }
+
+  package "payment-domain" {
+    component "PaymentEntity" as PaymentEntity
+    component "PaymentValidator"
+  }
+
+  package "payment-infra" {
+    component "PgClient(Mock)" as PgClient
+    component "PaymentEventPublisher"
+  }
+
+  PaymentService --> PaymentEntity
+  PaymentService --> PaymentValidator
+  PaymentService --> PgClient
+  PaymentService --> PaymentEventPublisher
+}
+
+' ========================
+' KAFKA
+' ========================
+component "Kafka Broker" as Kafka
+
+OrderEventPublisher --> Kafka : OrderCreatedEvent
+Kafka --> PaymentService : consume OrderCreatedEvent
+
+PaymentEventPublisher --> Kafka : PaymentCompletedEvent\nPaymentFailedEvent
+Kafka --> OrderService : consume PaymentResultEvent
+
+Kafka --> ProductService : PaymentCompletedEvent
+
+@enduml
