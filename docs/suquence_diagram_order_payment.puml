@@ -1,0 +1,30 @@
+@startuml
+title 주문 / 결제
+
+actor 사용자
+participant "클라이언트" as Client
+participant "Order API" as Order
+participant "Payment API" as Payment
+participant "PG사" as PG
+
+사용자 -> Client : 주문하기 클릭
+Client -> Order : POST /orders
+
+Order -> Order : 주문 생성 (CREATED)
+Order --> Client : 주문 정보 반환
+
+Client -> Payment : POST /payments
+
+Payment -> Payment : 결제 생성 (PENDING)
+Payment -> PG : 결제 요청
+PG --> Payment : 결제 결과 반환
+
+alt 결제 성공
+    Payment -> Order : 주문 상태 변경 (COMPLETED)
+    Payment -> Payment : 결제 상태 변경 (PAID)
+    Payment --> Client : 결제 성공 응답
+else 결제 실패
+    Payment -> Payment : 결제 상태 변경 (FAILED)
+    Payment --> Client : 결제 실패 응답
+end
+@enduml
