@@ -12,9 +12,9 @@ Client --> APIGW
 ' ========================
 ' MEMBER
 ' ========================
-package "member" {
+rectangle "Member Bounded Context" {
 
-  package "member-api" {
+  package "member-interface" {
     component "MemberController"
   }
 
@@ -26,6 +26,7 @@ package "member" {
   package "member-domain" {
     component "MemberEntity" as MemberEntity
     component "PasswordPolicy"
+    component "MemberRepository (Port)"
   }
 
   package "member-infra" {
@@ -33,11 +34,19 @@ package "member" {
     component "RedisTokenStore"
   }
 
+  ' API Flow
   MemberController --> MemberService
   MemberController --> AuthService
+
+  ' Application -> Domain
   MemberService --> MemberEntity
   MemberService --> PasswordPolicy
-  MemberService --> JpaMemberRepository
+  MemberService --> "MemberRepository (Port)"
+
+  ' Domain Port -> Infra Adapter
+  "MemberRepository (Port)" <.. JpaMemberRepository
+
+  ' Auth Infra
   AuthService --> RedisTokenStore
 }
 
@@ -46,9 +55,9 @@ APIGW --> MemberController
 ' ========================
 ' PRODUCT
 ' ========================
-package "product" {
+rectangle "Product Bounded Context" {
 
-  package "product-api" {
+  package "product-interface" {
     component "ProductController"
   }
 
@@ -59,26 +68,83 @@ package "product" {
   package "product-domain" {
     component "ProductEntity" as ProductEntity
     component "StockPolicy"
+    component "ProductRepository (Port)"
   }
 
   package "product-infra" {
     component "JpaProductRepository"
   }
 
+  package "product-messaging" {
+    component "ProductEventListener"
+  }
+
+  ' API Flow
   ProductController --> ProductService
+
+  ' Application -> Domain
   ProductService --> ProductEntity
   ProductService --> StockPolicy
-  ProductService --> JpaProductRepository
+  ProductService --> "ProductRepository (Port)"
+
+  ' Domain Port -> Infra Adapter
+  "ProductRepository (Port)" <.. JpaProductRepository
+
+  ' Messaging Adapter -> Application
+  ProductEventListener --> ProductService
 }
 
 APIGW --> ProductController
 
 ' ========================
+' INVENTORY (재고 BC)
+' ========================
+rectangle "Inventory Bounded Context" {
+
+  package "inventory-interface" {
+    ' Cart/Order에서 사용하는 재고 조회/예약용 포트
+    component "InventoryAvailabilityApi"
+    component "InventoryReservationApi"
+  }
+
+  package "inventory-application" {
+    component "InventoryAvailabilityService"
+    component "InventoryReservationService"
+  }
+
+  package "inventory-domain" {
+    component "InventoryItem"
+    component "InventoryPolicy"
+    component "InventoryRepository (Port)"
+  }
+
+  package "inventory-infra" {
+    component "JpaInventoryRepository"
+  }
+
+  ' Interface -> Application
+  InventoryAvailabilityApi --> InventoryAvailabilityService
+  InventoryReservationApi --> InventoryReservationService
+
+  ' Application -> Domain
+  InventoryAvailabilityService --> InventoryItem
+  InventoryAvailabilityService --> InventoryPolicy
+  InventoryAvailabilityService --> "InventoryRepository (Port)"
+
+  InventoryReservationService --> InventoryItem
+  InventoryReservationService --> InventoryPolicy
+  InventoryReservationService --> "InventoryRepository (Port)"
+
+  ' Domain Port -> Infra Adapter
+  "InventoryRepository (Port)" <.. JpaInventoryRepository
+}
+
+' ========================
 ' CART
 ' ========================
-package "cart" {
+rectangle "Cart Bounded Context" {
 
-  package "cart-api" {
+  package "cart-interface" {
     component "CartController"
   }
 
@@ -94,9 +160,15 @@ package "cart" {
     component "RedisCartRepository"
   }
 
+  ' API Flow
   CartController --> CartService
+
+  ' Application -> Domain/Infra
   CartService --> CartEntity
   CartService --> RedisCartRepository
+
+  ' Cart -> Inventory (재고 확인용 의존)
+  CartService --> InventoryAvailabilityApi : check availability
 }
 
 APIGW --> CartController
@@ -104,9 +176,9 @@ APIGW --> CartController
 ' ========================
 ' ORDER
 ' ========================
-package "order" {
+rectangle "Order Bounded Context" {
 
-  package "order-api" {
+  package "order-interface" {
     component "OrderController"
   }
 
@@ -117,19 +189,37 @@ package "order" {
   package "order-domain" {
     component "OrderEntity" as OrderEntity
     component "OrderPolicy"
+    component "OrderRepository (Port)"
+    component "OrderEventPublisher (Port)"
   }
 
   package "order-infra" {
     component "JpaOrderRepository"
-    component "OrderEventPublisher"
+    component "KafkaOrderEventPublisher"
   }
 
+  package "order-messaging" {
+    component "OrderEventListener"
+  }
+
+  ' API Flow
   OrderController --> OrderService
+
+  ' Application -> Domain
   OrderService --> OrderEntity
   OrderService --> OrderPolicy
-  OrderService --> JpaOrderRepository
-  OrderService --> OrderEventPublisher
+  OrderService --> "OrderRepository (Port)"
+  OrderService --> "OrderEventPublisher (Port)"
 
+  ' Domain Port -> Infra Adapters
+  "OrderRepository (Port)" <.. JpaOrderRepository
+  "OrderEventPublisher (Port)" <.. KafkaOrderEventPublisher
+
+  ' Messaging Adapter -> Application
+  OrderEventListener --> OrderService
+
+  ' Order -> Inventory (재고 예약/해제 의존)
+  OrderService --> InventoryReservationApi : reserve/release stock
 }
 
 APIGW --> OrderController
@@ -137,7 +227,7 @@ APIGW --> OrderController
 ' ========================
 ' PAYMENT
 ' ========================
-package "payment" {
+rectangle "Payment Bounded Context" {
 
   package "payment-application" {
     component "PaymentService"
@@ -146,17 +236,29 @@ package "payment" {
   package "payment-domain" {
     component "PaymentEntity" as PaymentEntity
     component "PaymentValidator"
+    component "PaymentEventPublisher (Port)"
   }
 
   package "payment-infra" {
-    component "PgClient(Mock)" as PgClient
-    component "PaymentEventPublisher"
+    component "PgClient" as PgClient
+    component "KafkaPaymentEventPublisher"
   }
 
+  package "payment-messaging" {
+    component "PaymentEventListener"
+  }
+
+  ' Application -> Domain
   PaymentService --> PaymentEntity
   PaymentService --> PaymentValidator
   PaymentService --> PgClient
-  PaymentService --> PaymentEventPublisher
+  PaymentService --> "PaymentEventPublisher (Port)"
+
+  ' Domain Port -> Infra Adapter
+  "PaymentEventPublisher (Port)" <.. KafkaPaymentEventPublisher
+
+  ' Messaging Adapter -> Application
+  PaymentEventListener --> PaymentService
 }
 
 ' ========================
@@ -164,12 +266,15 @@ package "payment" {
 ' ========================
 component "Kafka Broker" as Kafka
 
-OrderEventPublisher --> Kafka : OrderCreatedEvent
-Kafka --> PaymentService : consume OrderCreatedEvent
+' Order -> Payment
+KafkaOrderEventPublisher --> Kafka : OrderCreatedEvent
+Kafka --> PaymentEventListener : consume OrderCreatedEvent
 
-PaymentEventPublisher --> Kafka : PaymentCompletedEvent\nPaymentFailedEvent
-Kafka --> OrderService : consume PaymentResultEvent
+' Payment -> Order
+KafkaPaymentEventPublisher --> Kafka : PaymentCompletedEvent\nPaymentFailedEvent
+Kafka --> OrderEventListener : consume PaymentCompletedEvent\nPaymentFailedEvent
 
-Kafka --> ProductService : PaymentCompletedEvent
+' Payment -> Product
+Kafka --> ProductEventListener : consume PaymentCompletedEvent
 
 @enduml
