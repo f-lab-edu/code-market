@@ -11,18 +11,21 @@
 - 클린 코드를 위한 꾸준한 코드 리팩토링
 
 # 기술 스택
-Java, Spring Boot, Spring Security
-Gradle
-JPA, Hibernate
-MySQL
-Docker Compose
-Redis
-Kafka
-JUnit
-ApiDog
-Swagger
-WorkBench
-IntelliJ
+Java, Spring Boot, Spring Security   
+Gradle   
+JPA, Hibernate   
+MySQL   
+Docker Compose   
+Redis   
+Kafka   
+JUnit   
+ApiDog   
+Swagger  
+WorkBench   
+IntelliJ   
+
+# 프로젝트 관련 문서 (다이어그램, 시나리오, 유스케이스)
+https://github.com/f-lab-edu/code-market-docs
 
 # 브랜치 관리 전략
 Git Flow 예정
@@ -30,5 +33,4 @@ Git Flow 예정
 # 서버 구조
 미정
 
-# 프로젝트 관련 문서 (다이어그램, 시나리오, 유스케이스)
-https://github.com/f-lab-edu/code-market-docs
+
