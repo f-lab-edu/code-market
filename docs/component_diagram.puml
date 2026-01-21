@@ -1,0 +1,48 @@
+@startuml
+title Code-Market Architecture (Bounded Context Level + Redis)
+
+actor Client
+component "API Gateway" as APIGW
+
+rectangle "Member" as MemberBC
+rectangle "Product" as ProductBC
+rectangle "Inventory" as InventoryBC
+rectangle "Cart" as CartBC
+rectangle "Order" as OrderBC
+rectangle "Payment" as PaymentBC
+
+' === Infra (Redis 등) ===
+database "Redis (Session/Cart Cache)" as Redis
+
+' 클라이언트 진입점
+Client --> APIGW
+
+' API Gateway → 각 BC
+APIGW --> MemberBC
+APIGW --> ProductBC
+APIGW --> CartBC
+APIGW --> OrderBC
+
+' Cart / Member 가 Redis 사용한다고 가정
+MemberBC --> Redis : auth token / session
+CartBC --> Redis : cart data
+
+' Cart → Inventory (재고 확인)
+CartBC --> InventoryBC : check availability
+
+' Order → Inventory (재고 예약/해제)
+OrderBC --> InventoryBC : reserve/release stock
+
+' ========================
+' Kafka 를 통한 이벤트 흐름
+' ========================
+component "Kafka Broker" as Kafka
+
+' Order ↔ Payment
+OrderBC --> Kafka : OrderCreatedEvent
+Kafka --> PaymentBC : OrderCreatedEvent
+
+PaymentBC --> Kafka : PaymentCompletedEvent\nPaymentFailedEvent
+Kafka --> OrderBC : PaymentCompletedEvent\nPaymentFailedEvent
+
+@enduml

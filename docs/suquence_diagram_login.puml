@@ -1,0 +1,19 @@
+@startuml
+title 로그인
+
+actor 사용자
+participant "로그인 화면" as Client
+participant "Auth API" as Auth
+database Redis
+
+사용자 -> Client : 아이디/비밀번호 입력
+Client -> Auth : POST /login
+
+Auth -> Auth : 사용자 인증
+Auth -> Auth : Access Token 생성
+Auth -> Auth : Refresh Token 생성
+
+Auth -> Redis : Refresh Token 저장
+
+Auth --> Client : Access Token + Refresh Token 반환
+@enduml
