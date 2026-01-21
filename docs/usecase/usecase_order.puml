@@ -1,0 +1,23 @@
+@startuml
+title 주문 유스케이스 (장바구니 → 주문 생성)
+
+actor "회원" as Member
+
+rectangle "코드 마켓 시스템" {
+
+  usecase "주문" as UC_Order
+
+  usecase "장바구니 기반 주문 정보 조회" as UC_PrepareOrderInfo
+  usecase "상품 판매 가능 여부 재검증" as UC_RecheckSellable
+  usecase "재고 재검증" as UC_RecheckStock
+  usecase "주문 생성(CREATED)" as UC_CreateOrder
+}
+
+Member --> UC_Order
+
+UC_Order --> UC_PrepareOrderInfo : <<include>>
+UC_Order --> UC_RecheckSellable : <<include>>
+UC_Order --> UC_RecheckStock : <<include>>
+UC_Order --> UC_CreateOrder : <<include>>
+
+@enduml

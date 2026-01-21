@@ -1,0 +1,36 @@
+@startuml
+title 결제 유스케이스 (주문 기반 결제 처리)
+
+actor "회원" as Member
+actor "결제 게이트웨이" as PG
+
+rectangle "코드 마켓 시스템" {
+
+  usecase "결제" as UC_Pay
+
+  usecase "주문/상품 상태 재검증" as UC_VerifyBeforePay
+  usecase "결제 정보 입력 화면 제공(PENDING)" as UC_ShowPaymentForm
+  usecase "결제 정보 검증" as UC_ValidatePaymentInput
+  usecase "PG 결제 승인 요청" as UC_RequestPgApproval
+  usecase "결제 성공 처리\n(재고 차감, 주문 COMPLETED, 결제 PAID)" as UC_HandlePaymentSuccess
+  usecase "결제 실패 처리\n(주문 CREATED 유지, 결제 FAILED)" as UC_HandlePaymentFailure
+}
+
+' 상위 흐름
+Member --> UC_Pay
+
+' 결제 시작 전 검증 및 폼 제공
+UC_Pay --> UC_VerifyBeforePay : <<include>>
+UC_Pay --> UC_ShowPaymentForm : <<include>>
+
+' 회원이 폼에서 결제 정보 입력 후 승인 요청
+Member --> UC_ValidatePaymentInput
+UC_ValidatePaymentInput --> UC_RequestPgApproval : <<include>>
+
+UC_RequestPgApproval --> PG : 결제 승인 요청
+PG --> UC_RequestPgApproval : 승인/거절 응답
+
+UC_RequestPgApproval --> UC_HandlePaymentSuccess : <<include>>  ' 승인
+UC_RequestPgApproval --> UC_HandlePaymentFailure : <<include>>  ' 거절
+
+@enduml

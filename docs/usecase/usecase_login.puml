@@ -1,0 +1,19 @@
+@startuml
+title 로그인 유스케이스
+
+actor "회원" as Member
+
+rectangle "코드 마켓 시스템" {
+
+  usecase "로그인" as UC_Login
+  usecase "이메일 존재 여부 검증" as UC_CheckEmailExists
+  usecase "비밀번호 일치 여부 검증" as UC_CheckPasswordMatch
+
+}
+
+Member --> UC_Login
+
+UC_Login --> UC_CheckEmailExists : <<include>>
+UC_Login --> UC_CheckPasswordMatch : <<include>>
+
+@enduml

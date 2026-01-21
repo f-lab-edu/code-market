@@ -1,0 +1,19 @@
+@startuml
+title 마이페이지 - 내 주문 내역 조회 유스케이스
+
+actor "회원" as Member
+
+rectangle "코드 마켓 시스템" {
+
+  usecase "내 주문 내역 조회" as UC_ViewOrders
+  usecase "로그인 여부 검증" as UC_CheckLogin
+  usecase "회원 주문 내역 목록 조회" as UC_FetchOrders
+
+}
+
+Member --> UC_ViewOrders
+
+UC_ViewOrders --> UC_CheckLogin : <<include>>
+UC_ViewOrders --> UC_FetchOrders : <<include>>
+
+@enduml

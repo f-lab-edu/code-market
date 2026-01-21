@@ -1,0 +1,33 @@
+@startuml
+title 상품 검색 및 장바구니 유스케이스 (상세에서만 추가)
+
+actor "회원" as Member
+
+rectangle "코드 마켓 시스템" {
+
+  usecase "상품 검색" as UC_SearchProduct
+  usecase "상품 목록 조회" as UC_ListProducts
+  usecase "상품 상세 조회" as UC_ViewProductDetail
+  usecase "장바구니 추가" as UC_AddToCart
+
+  usecase "로그인 여부 검증" as UC_CheckLogin
+  usecase "상품 판매 가능 여부 검증" as UC_CheckSellable
+  usecase "재고 검증" as UC_CheckStock
+  usecase "장바구니 데이터 저장" as UC_SaveCartItem
+}
+
+Member --> UC_SearchProduct
+Member --> UC_ViewProductDetail
+
+UC_SearchProduct --> UC_ListProducts : <<include>>
+UC_ViewProductDetail --> UC_ListProducts : <<include>>
+
+' ✅ 상세 화면에서만 장바구니 추가 가능
+UC_ViewProductDetail --> UC_AddToCart : <<include>>
+
+UC_AddToCart --> UC_CheckLogin : <<include>>
+UC_AddToCart --> UC_CheckSellable : <<include>>
+UC_AddToCart --> UC_CheckStock : <<include>>
+UC_AddToCart --> UC_SaveCartItem : <<include>>
+
+@enduml
