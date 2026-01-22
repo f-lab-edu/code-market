@@ -4,11 +4,10 @@ title 회원가입 유스케이스
 actor "회원" as Member
 
 rectangle "코드 마켓 시스템" {
-
-  usecase "회원가입" as UC_Signup
-  usecase "이메일 중복 검증" as UC_CheckEmail
-  usecase "비밀번호 검증" as UC_CheckPassword
-
+'사용자 시나리오 (user_scenario.md 파일)의 기능별 시나리오 번호와 해당 다이어그램의 번호는 매핑되어 있습니다
+  usecase "1.회원가입" as UC_Signup
+  usecase "2.이메일 중복 검증" as UC_CheckEmail
+  usecase "3.비밀번호 검증" as UC_CheckPassword
 }
 
 Member --> UC_Signup

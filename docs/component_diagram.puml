@@ -45,4 +45,8 @@ Kafka --> PaymentBC : OrderCreatedEvent
 PaymentBC --> Kafka : PaymentCompletedEvent\nPaymentFailedEvent
 Kafka --> OrderBC : PaymentCompletedEvent\nPaymentFailedEvent
 
+component "Payment Gateway" as PAYMENTGW
+PaymentBC --> PAYMENTGW : Payment Approval Request
+PAYMENTGW --> PaymentBC : Payment Approval Result
+
 @enduml
