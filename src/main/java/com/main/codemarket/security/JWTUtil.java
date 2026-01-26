@@ -89,7 +89,6 @@ public class JWTUtil {
     public String createJwt(String email, Long expiredMs) {
         return Jwts.builder()
                 .claim("email", email)
-//                .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis())) // 발급 시간
                 .expiration(new Date(System.currentTimeMillis() + expiredMs)) // 만료 시간
                 .signWith(secretKey) // 비밀키를 사용하여 서명

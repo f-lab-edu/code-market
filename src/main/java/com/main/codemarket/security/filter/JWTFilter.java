@@ -45,8 +45,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
             // JWT에서 사용자 정보 추출
             String email = jwtUtil.getEmail(token);
-//            String username = jwtUtil.getUsername(token);
-//            UserRole role = UserRole.valueOf(jwtUtil.getRole(token));
 
             // 인증 객체 생성
             Member member = Member.createMember(email, "N/A"); // 비밀번호는 JWT 기반 인증이므로 사용하지 않음
@@ -60,7 +58,6 @@ public class JWTFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-//            log.error("JWT 필터 처리 중 오류 발생: {}", e.getMessage(), e);
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰입니다.");
         }
 

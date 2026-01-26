@@ -43,12 +43,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
         String email = customUserDetails.getEmail();
 
-        // 사용자 역할(Role) 조회
-//        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-//        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-//        GrantedAuthority authority = iterator.next();
-
-//        String role = authority.getAuthority();
         String token = jwtUtil.createJwt(email, 60 * 60 * 1000L); // 1시간 유효 토큰 생성
         res.addHeader("Authorization", "Bearer " + token); // JWT를 Authorization 헤더에 추가
     }

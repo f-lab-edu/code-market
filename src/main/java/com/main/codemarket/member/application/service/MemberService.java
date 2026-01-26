@@ -34,7 +34,6 @@ public class MemberService {
      */
     private void validateDuplicateEmail(String email) {
         if (memberRepository.existsByEmail(email)) {
-//            log.warn("중복된 아이디 입니다: {}" , membername);
             throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
         }
     }
