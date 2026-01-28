@@ -1,0 +1,21 @@
+@startuml
+title 상품 검색 및 장바구니 유스케이스
+
+actor "회원" as Member
+
+rectangle "코드 마켓 시스템" {
+  usecase "3-1-2/3-1-4. 상품 검색 및 목록 확인" as UC_Search
+  usecase "3-1-7. 상품 상세 정보 확인" as UC_ViewDetail
+  usecase "4-1-1. 장바구니 추가" as UC_AddCart
+}
+
+Member --> UC_Search
+Member --> UC_ViewDetail
+Member --> UC_AddCart
+
+' 상세 정보 확인은 목록 확인 중 선택적으로 발생
+UC_ViewDetail ..> UC_Search : <<extend>>
+
+' 만약 상세페이지에서만 장바구니 추가가 가능하다면 아래 주석 해제
+ UC_AddCart ..> UC_ViewDetail : <<extend>>
+@enduml
