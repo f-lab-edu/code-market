@@ -5,14 +5,12 @@ actor "회원" as Member
 
 rectangle "코드 마켓 시스템" {
 '사용자 시나리오 (user_scenario.md 파일)의 기능별 시나리오 번호와 해당 다이어그램의 번호는 매핑되어 있습니다
-  usecase "1. 로그인" as UC_Login
-  usecase "2. 이메일 존재 여부 검증" as UC_CheckEmailExists
-  usecase "3. 비밀번호 일치 여부 검증" as UC_CheckPasswordMatch
+  usecase "2-1-1. 로그인 화면으로 진입" as UC_Login
+  usecase "2-1-2. 이메일/비밀번호를 입력" as UC_WriteInformation
 }
 
 Member --> UC_Login
 
-UC_Login --> UC_CheckEmailExists : <<include>>
-UC_Login --> UC_CheckPasswordMatch : <<include>>
+UC_Login ..> UC_WriteInformation : <<include>>
 
 @enduml
