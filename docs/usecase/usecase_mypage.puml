@@ -1,0 +1,36 @@
+@startuml
+title 마이페이지 유스케이스
+
+actor "회원" as Member
+
+rectangle "코드 마켓 시스템" {
+'사용자 시나리오 (user_scenario.md 파일)의 기능별 시나리오 번호와 해당 다이어그램의 번호는 매핑되어 있습니다
+  usecase "7-1-1. 마이페이지 진입" as UC_EnterMyPage
+  usecase "7-1-2. 프로필 수정 클릭" as UC_ClickEditProfile
+  usecase "7-1-5. 기존 회원 정보를 확인" as UC_FetchMyInformation
+  usecase "7-1-6. 회원 정보 수정" as UC_EditProfile
+  usecase "8-1-2. 내 주문 내역 조회 클릭" as UC_ClickMyOrders
+  usecase "8-1-4. 내 주문 내역 목록 조회" as UC_FetchMyOrders
+  usecase "9-1-2. 내 장바구니 목록 조회 클릭" as UC_ClickMyCart
+  usecase "9-1-4. 내 장바구니 목록 조회" as UC_FetchMyCart
+}
+
+Member -up-> UC_EnterMyPage
+
+'마이페이지에서 선택 가능한 옵션들
+UC_ClickEditProfile ..> UC_EnterMyPage : <<extend>>
+UC_ClickMyCart ..> UC_EnterMyPage : <<extend>>
+UC_ClickMyOrders ..> UC_EnterMyPage : <<extend>>
+
+'프로필 수정 진행시
+UC_ClickEditProfile ..> UC_FetchMyInformation : <<include>>
+UC_EditProfile ..> UC_FetchMyInformation : <<extend>>
+
+'내 주문 목록 조회
+UC_ClickMyOrders ..> UC_FetchMyOrders : <<include>>
+
+'내 장바구니 조회
+UC_ClickMyCart ..> UC_FetchMyCart : <<include>>
+
+
+@enduml
