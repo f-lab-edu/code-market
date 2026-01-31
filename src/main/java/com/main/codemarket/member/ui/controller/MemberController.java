@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/member")
 public class MemberController {
     private final MemberService memberService;
+
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
     }
 
     /**
      * 회원가입 API
-     * - JSON 데이터를 받아 UserService에서 회원가입 처리
+     * - JSON 데이터를 받아 MemberService에서 회원가입 처리
      */
-    @PostMapping("/signUp")
+    @PostMapping("/sign-up")
     public ResponseEntity<String> signUp(@RequestBody SignUpDto signUpDto) {
-        memberService.signUp(signUpDto);
-        //TODO : 리턴 어떻게 할지 정해야함.
+        memberService.signUp(SignUpDto.createMemberEntity(signUpDto));
         return ResponseEntity.ok("회원가입 성공");
     }
 
