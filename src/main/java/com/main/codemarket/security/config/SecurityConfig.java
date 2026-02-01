@@ -79,7 +79,7 @@ public class SecurityConfig {
 
                 // 엔드포인트별 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/member/signUp").permitAll() // 로그인, 회원가입, 홈은 누구나 접근 가능
+                        .requestMatchers("/login", "/member/sign-up").permitAll() // 로그인, 회원가입, 홈은 누구나 접근 가능
                         .anyRequest().authenticated()) // 그 외의 요청은 인증된 사용자만 접근 가능
 
                 // JWT 필터 추가 (기존 UsernamePasswordAuthenticationFilter 이전에 실행)
