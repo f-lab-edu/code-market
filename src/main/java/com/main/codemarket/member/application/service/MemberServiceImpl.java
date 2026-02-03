@@ -2,16 +2,15 @@ package com.main.codemarket.member.application.service;
 
 import com.main.codemarket.member.domain.entity.Member;
 import com.main.codemarket.member.infra.repository.MemberRepository;
-import com.main.codemarket.member.ui.dto.SignUpDto;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MemberServiceImpl implements MemberService {
-    private final MemberRepository memberRepository;
 
-    public MemberServiceImpl(MemberRepository memberRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    private  MemberRepository memberRepository;
+
+    public MemberServiceImpl(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
 

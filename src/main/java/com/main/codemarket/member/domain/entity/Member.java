@@ -17,15 +17,6 @@ public class Member implements PasswordEncoder {
     public Member() {
     }
 
-    public static Member createMember(String email, String password) {
-        // 도메인 검증 로직
-        validateEmail(email);
-        Member member = new Member();
-        member.email = email;
-        member.password = password;
-        return member;
-    }
-
     public static Member createMember(String email, String username, String password) {
         // 도메인 검증 로직
         validateEmail(email);
