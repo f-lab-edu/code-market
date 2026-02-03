@@ -6,33 +6,17 @@ actor "결제 게이트웨이" as PG
 
 rectangle "코드 마켓 시스템" {
 '사용자 시나리오 (user_scenario.md 파일)의 기능별 시나리오 번호와 해당 다이어그램의 번호는 매핑되어 있습니다
-  usecase "1.결제" as UC_Pay
-  usecase "2.주문/상품 상태 재검증" as UC_VerifyBeforePay
-  usecase "3.결제 정보 입력 화면 진입" as UC_ShowPaymentForm
-  usecase "4.결제 정보 입력" as UC_SubmitPaymentForm
-  usecase "5.PG 결제 승인 요청" as UC_RequestPgApproval
-  usecase "6.결제 정보 검증" as UC_ValidatePaymentInput
-  usecase "8.결제 성공 처리\n(재고 차감, 주문 COMPLETED, 결제 PAID)" as UC_HandlePaymentSuccess
-  usecase "결제 실패 처리\n(주문 CREATED 유지, 결제 FAILED)" as UC_HandlePaymentFailure
+  usecase "6-1-5.결제 인증 화면 진입" as UC_EnterPaymentForm
+  usecase "6-1-6.결제 정보 입력" as UC_WritePaymentInformation
+  usecase "6-1-7.최종 결제 요청 진행" as UC_RequestPayment
 }
 
-' 상위 흐름
-Member --> UC_Pay
+Member --> UC_EnterPaymentForm
+Member --> UC_RequestPayment
 
-' 결제 시작 전 검증 및 폼 제공
-UC_Pay --> UC_VerifyBeforePay : <<include>>
-UC_Pay --> UC_ShowPaymentForm : <<include>>
-
-
-' 회원이 폼에서 결제 정보 입력 후 승인 요청
-UC_ShowPaymentForm --> UC_SubmitPaymentForm : <<include>>
-UC_RequestPgApproval --> UC_ValidatePaymentInput : <<include>>
-UC_SubmitPaymentForm --> UC_RequestPgApproval : <<include>>
-
-UC_RequestPgApproval --> PG : 결제 승인 요청
-PG --> UC_RequestPgApproval : 승인/거절 응답
-
-UC_RequestPgApproval --> UC_HandlePaymentSuccess : <<include>>  ' 승인
-UC_RequestPgApproval --> UC_HandlePaymentFailure : <<include>>  ' 거절
+UC_EnterPaymentForm ..> UC_WritePaymentInformation : <<include>>
+UC_RequestPayment ..> UC_WritePaymentInformation : <<extend>>
+UC_RequestPayment -->  PG : <<PG 승인 요청>>
 
 @enduml
+
