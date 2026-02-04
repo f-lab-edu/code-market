@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MemberServiceImpl implements MemberService {
 
-    private  MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
     public MemberServiceImpl(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
@@ -17,7 +17,6 @@ public class MemberServiceImpl implements MemberService {
     /**
      * 회원가입 기능
      * - 중복된 email 체크
-     * - 비밀번호 암호화 후 저장
      */
     @Override
     @Transactional
