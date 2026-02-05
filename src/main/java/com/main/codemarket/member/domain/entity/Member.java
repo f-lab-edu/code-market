@@ -1,6 +1,7 @@
 package com.main.codemarket.member.domain.entity;
 
 import jakarta.persistence.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 public class Member {
@@ -22,9 +23,15 @@ public class Member {
         Member member = new Member();
         member.email = email;
         member.username = username;
-        member.password = password;
+        member.password = encode(password);
         return member;
     }
+
+    private static String encode(String password) {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        return bCryptPasswordEncoder.encode(password);
+    }
+
 
     /**
      * 이메일 형식 체크
@@ -57,4 +64,6 @@ public class Member {
     public String getPassword() {
         return password;
     }
+
+
 }
