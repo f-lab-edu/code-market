@@ -22,7 +22,6 @@ class MemberServiceImplTest {
     @Autowired
     private MemberRepository memberRepository;
 
-
     @Test
     @DisplayName("입력값이 유효한 회원 객체는 DB에 정상적으로 저장된다")
     void signUp() {
@@ -50,8 +49,5 @@ class MemberServiceImplTest {
         assertThrows(IllegalArgumentException.class, () -> {
             memberService.signUp(sameEmailMember);
         });
-
     }
-
-
 }

@@ -30,5 +30,4 @@ public class MemberController {
         memberService.signUp(SignUpDto.createMemberEntity(signUpDto));
         return ResponseEntity.ok("회원가입 성공");
     }
-
 }
