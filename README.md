@@ -42,4 +42,8 @@ https://www.conventionalcommits.org/en/v1.0.0/
 # 서버 구조
 미정
 
+# API 문서
+Swagger 활용   
+주소 : `{호스트 주소}/swagger-ui.html`
+
 
