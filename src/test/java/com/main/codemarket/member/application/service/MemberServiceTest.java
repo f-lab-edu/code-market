@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@ActiveProfiles("local")
-class MemberServiceImplTest {
+@ActiveProfiles("test")
+class MemberServiceTest {
 
     @Autowired
     private MemberService memberService;
@@ -45,6 +45,7 @@ class MemberServiceImplTest {
         memberRepository.save(member);
 
         Member sameEmailMember = Member.createMember("dbsalszz@naver.com", "another_test_user", "another_Password");
+
         //then
         assertThrows(IllegalArgumentException.class, () -> {
             memberService.signUp(sameEmailMember);
