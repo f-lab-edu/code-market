@@ -1,6 +1,7 @@
 package com.main.codemarket.member.domain.entity;
 
 import jakarta.persistence.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 public class Member {
