@@ -2,8 +2,8 @@ package com.main.codemarket.security.config;
 
 import com.main.codemarket.member.infra.repository.MemberRepository;
 import com.main.codemarket.security.CustomUserDetailsService;
-import com.main.codemarket.security.JwtAuthenticationFilter;
-import com.main.codemarket.security.LoginFilter;
+import com.main.codemarket.security.filter.JwtAuthenticationFilter;
+import com.main.codemarket.security.filter.LoginFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
