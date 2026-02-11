@@ -1,25 +1,26 @@
 package com.main.codemarket.member.domain.entity;
 
 import jakarta.persistence.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
+@Table(name = "member")
 public class Member {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 80)
     private String password;
 
-    public Member() {
+    protected Member() {
     }
 
     public static Member createMember(String email, String username, String encodedPassword) {
