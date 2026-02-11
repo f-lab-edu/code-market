@@ -1,7 +1,5 @@
 package com.main.codemarket.security.config;
 
-import com.main.codemarket.member.infra.repository.MemberRepository;
-import com.main.codemarket.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -15,11 +13,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final MemberRepository memberRepository;
-
-    public SecurityConfig(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
 
     /*
      * 인증을 필요한 요청과 아닌 요청을 구분
@@ -33,14 +26,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(form -> Customizer.withDefaults());
         return httpSecurity.build();
-    }
-
-    /*
-     * 커스텀한 기준으로 인증을 위한 회원 정보 조회
-     */
-    @Bean
-    CustomUserDetailsService customUserDetailsService() {
-        return new CustomUserDetailsService(memberRepository);
     }
 
     /*
