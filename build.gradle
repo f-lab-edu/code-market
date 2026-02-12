@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     // docker compose
-    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    testAndDevelopmentOnly "org.springframework.boot:spring-boot-docker-compose"
 
     //validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
