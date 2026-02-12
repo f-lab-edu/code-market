@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+    testAndDevelopmentOnly "org.springframework.boot:spring-boot-docker-compose"
+
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
 
