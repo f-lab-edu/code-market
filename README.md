@@ -46,7 +46,7 @@ https://www.conventionalcommits.org/en/v1.0.0/
 * Swagger 활용
 
 ### 실행 방법
-* Docker Desktop 설치 필요
+* Docker Desktop 최소 3.4 이상 설치 필요
 * JDK 17 이상 권장
 
 ```bash
