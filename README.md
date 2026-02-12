@@ -42,8 +42,18 @@ https://www.conventionalcommits.org/en/v1.0.0/
 # 서버 구조
 미정
 
-# API 문서
-Swagger 활용   
-주소 : `{호스트 주소}/swagger-ui.html`
+# API 명세
+* Swagger 활용
 
+### 실행 방법
+* Docker Desktop 설치 필요
+* JDK 17 이상 권장
 
+```bash
+ ./gradlew bootRun --args="--spring.profiles.active=test"
+
+- Swagger UI
+http://localhost:8080/swagger-ui.html
+
+- OpenAPI 명세 (JSON)
+http://localhost:8080/v3/api-docs
