@@ -2,7 +2,6 @@ package com.main.codemarket.member.application.service;
 
 import com.main.codemarket.member.domain.entity.Member;
 import com.main.codemarket.member.infra.repository.MemberRepository;
-import net.bytebuddy.utility.dispatcher.JavaDispatcher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
