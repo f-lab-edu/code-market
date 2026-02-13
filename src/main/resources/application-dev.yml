@@ -11,17 +11,13 @@ spring:
   config:
     activate:
       on-profile: dev
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/code_market?serverTimezone=Asia/Seoul
-    username:
-    password:
 
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: true
 
-  jwt:
-    secret: your-super-secret-key-must-be-at-least-256-bits-long-for-hmac-sha256
-    token-expire-time: 3600000
+  docker:
+    compose:
+      enabled: true
+      file: docker-compose.yml

@@ -10,7 +10,7 @@ server:
 spring:
   config:
     activate:
-      on-profile: prod
+      on-profile: test
 
   jpa:
     hibernate:
@@ -21,3 +21,5 @@ spring:
     compose:
       enabled: true
       file: docker-compose.yml
+      skip:
+        in-tests: false
