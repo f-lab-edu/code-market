@@ -1,7 +1,7 @@
 package com.main.codemarket.security.config;
 
-import com.main.codemarket.member.infra.repository.MemberRepository;
 import com.main.codemarket.security.CustomUserDetailsService;
+import com.main.codemarket.security.JwtUtil;
 import com.main.codemarket.security.filter.JwtAuthenticationFilter;
 import com.main.codemarket.security.filter.LoginFilter;
 import org.springframework.context.annotation.Bean;
@@ -20,23 +20,23 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final MemberRepository memberRepository;
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final AuthenticationConfiguration authenticationConfiguration;
 
-    private LoginFilter loginFilter;
-
-    public SecurityConfig(MemberRepository memberRepository, JwtAuthenticationFilter jwtAuthenticationFilter, LoginFilter loginFilter) {
-        this.memberRepository = memberRepository;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.loginFilter = loginFilter;
+    public SecurityConfig(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService, AuthenticationConfiguration authenticationConfiguration) {
+        this.jwtUtil = jwtUtil;
+        this.customUserDetailsService = customUserDetailsService;
+        this.authenticationConfiguration = authenticationConfiguration;
     }
-
 
     /*
      * 인증을 필요한 요청과 아닌 요청을 구분
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        JwtAuthenticationFilter jwtAuthenticationFilter = jwtAuthenticationFilter(jwtUtil, customUserDetailsService);
+        LoginFilter loginFilter = loginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
         httpSecurity
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/swagger-ui.html", "/member/login", "/member/sign-up").permitAll()
@@ -58,18 +58,22 @@ public class SecurityConfig {
     }
 
     /*
-     * 커스텀한 기준으로 인증을 위한 회원 정보 조회
-     */
-    @Bean
-    CustomUserDetailsService customUserDetailsService() {
-        return new CustomUserDetailsService(memberRepository);
-    }
-
-    /*
      * 회원 암호 인코딩 방식 지정
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
+        return new JwtAuthenticationFilter(jwtUtil, customUserDetailsService);
+    }
+
+    @Bean
+    public LoginFilter loginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        LoginFilter filter = new LoginFilter(authenticationManager, jwtUtil);
+        filter.setAuthenticationManager(authenticationManager);
+        return filter;
     }
 }
