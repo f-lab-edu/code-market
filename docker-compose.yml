@@ -1,0 +1,12 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: code-market-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: code_market
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3306"
