@@ -52,7 +52,7 @@ jacocoTestReport {
 
 sonarqube {
     properties {
-        //이후 정적 분석
+        //이후 정적 분석에 필요한 SonarQube 등이 따로 분리가 되면 설정 변경 필요
         property "sonar.projectKey", "com.codemarket:code-market"
         property "sonar.projectName", "code-market"
 
