@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StringUtils;
-
 import java.io.IOException;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -26,8 +25,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String email = request.getHeader("email");
-        String password = request.getHeader("password");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
 
         if (!StringUtils.hasText(email) || !StringUtils.hasText(password)) {
             throw new IllegalArgumentException("요청 헤더에 로그인에 필요한 정보가 없습니다");

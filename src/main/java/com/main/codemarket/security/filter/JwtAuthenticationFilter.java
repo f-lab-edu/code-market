@@ -10,20 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
-
 import org.slf4j.Logger;
 
-@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-    private JwtUtil jwtUtil;
-
-    private CustomUserDetailsService customUserDetailsService;
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
         this.jwtUtil = jwtUtil;
@@ -34,7 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 요청 헤더 유효성 검사, 로그인은 다음 필터이므로 현재 필터 스킵
      * 헤더에서 토큰 추출 후 토큰 유효성 검사
      * 해당 요청이 인증이 되지않았다면 인증 정보 저장
-     *
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -46,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if ("/member/login".equals(path) && "POST".equals(method)) {
             //다음 필터인 로그인 진행
             filterChain.doFilter(request, response);
+            return;
         }
 
         //요청이 유효하다면 요청에서 토큰 정보를 추출 후 토큰 검증
