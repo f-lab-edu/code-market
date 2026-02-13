@@ -43,13 +43,16 @@ dependencies {
 
 jacocoTestReport {
     reports {
+        // SonarQube의 커버리지 분석을 위해서 필요
         xml.required = true
+        // 개발 편의를 위해 추가
         html.required = true
     }
 }
 
 sonarqube {
     properties {
+        //이후 정적 분석
         property "sonar.projectKey", "com.codemarket:code-market"
         property "sonar.projectName", "code-market"
 
