@@ -41,29 +41,6 @@ dependencies {
 }
 
 
-jacocoTestReport {
-    reports {
-        xml.required = true
-        html.required = true
-    }
-}
-
-sonarqube {
-    properties {
-        property "sonar.projectKey", "com.codemarket:code-market"
-        property "sonar.projectName", "code-market"
-
-        // JaCoCo XML 리포트 경로
-        property "sonar.coverage.jacoco.xmlReportPaths",
-                "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-    }
-}
-
 tasks.named('test') {
     useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
-
-tasks.named("sonarqube") {
-    dependsOn jacocoTestReport
 }
