@@ -2,24 +2,35 @@ package com.main.codemarket.security.config;
 
 import com.main.codemarket.member.infra.repository.MemberRepository;
 import com.main.codemarket.security.CustomUserDetailsService;
+import com.main.codemarket.security.filter.JwtAuthenticationFilter;
+import com.main.codemarket.security.filter.LoginFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     private final MemberRepository memberRepository;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(MemberRepository memberRepository) {
+    private LoginFilter loginFilter;
+
+    public SecurityConfig(MemberRepository memberRepository, JwtAuthenticationFilter jwtAuthenticationFilter, LoginFilter loginFilter) {
         this.memberRepository = memberRepository;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.loginFilter = loginFilter;
     }
+
 
     /*
      * 인증을 필요한 요청과 아닌 요청을 구분
@@ -28,11 +39,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/swagger-ui.html", "/login", "/member/sign-up").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/member/login", "/member/sign-up").permitAll()
                         .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(form -> Customizer.withDefaults());
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
+    }
+
+    /*
+     * 로그인 등의 인증 과정에서 커스텀한 인증 과정을 진행하기 위해 빈 등록
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     /*
