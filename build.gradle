@@ -21,6 +21,12 @@ dependencies {
     // docker compose
     testAndDevelopmentOnly "org.springframework.boot:spring-boot-docker-compose"
 
+    //validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //security
+    implementation "org.springframework.boot:spring-boot-starter-security"
+
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
 
