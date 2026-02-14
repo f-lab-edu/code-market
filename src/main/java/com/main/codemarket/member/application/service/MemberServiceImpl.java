@@ -29,7 +29,8 @@ public class MemberServiceImpl implements MemberService {
      * 중복된 email 체크
      */
     private void validateDuplicateEmail(String email) {
-        if (memberRepository.existsByEmail(email)) {
+        boolean existsByEmail = memberRepository.existsByEmail(email);
+        if (existsByEmail) {
             throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
         }
     }

@@ -5,9 +5,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -57,5 +59,19 @@ public class JwtUtil {
             throw new IllegalArgumentException("토큰 서명/형식 오류");
         }
     }
+
+    public String extractToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("요청 헤더의 형식이 잘못되었습니다");
+        }
+
+        String[] headers = header.split(" ");
+        if (headers.length < 1) {
+            throw new IllegalArgumentException("토큰의 형식이 잘못되었습니다");
+        }
+        return headers[1];
+    }
+
 }
 

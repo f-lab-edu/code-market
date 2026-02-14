@@ -13,15 +13,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@ActiveProfiles("local")
-class MemberServiceImplTest {
+@ActiveProfiles("test")
+class MemberServiceTest {
 
     @Autowired
     private MemberService memberService;
 
     @Autowired
     private MemberRepository memberRepository;
-
 
     @Test
     @DisplayName("입력값이 유효한 회원 객체는 DB에 정상적으로 저장된다")
@@ -46,12 +45,10 @@ class MemberServiceImplTest {
         memberRepository.save(member);
 
         Member sameEmailMember = Member.createMember("dbsalszz@naver.com", "another_test_user", "another_Password");
+
         //then
         assertThrows(IllegalArgumentException.class, () -> {
             memberService.signUp(sameEmailMember);
         });
-
     }
-
-
 }
