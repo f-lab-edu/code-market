@@ -32,8 +32,8 @@ docs 폴더 아래에서 관리하고 있습니다.
 - 기능명세서
 
 # 브랜치 관리 전략
-Git Flow 규칙 준수   
-https://ujuc.github.io/2015/12/16/git-flow-github-flow-gitlab-flow/
+GitHub Flow 규칙 준수   
+https://devocean.sk.com/blog/techBoardDetail.do?ID=165571&boardType=techBlog
 
 # 커밋 규칙
 컨벤셔널 커밋 규칙 준수   
