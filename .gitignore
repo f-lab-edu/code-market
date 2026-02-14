@@ -1,5 +1,9 @@
+# 설정 파일
+#*.yml
+
 # 빌드 관련 파일
 .gradle/**
+build/**
 
 # IDE 설정
 out/**
