@@ -27,7 +27,7 @@ class MemberControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;  // JSON 변환
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private MemberService memberService;
