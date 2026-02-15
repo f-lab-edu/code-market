@@ -34,16 +34,6 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
-
-jacocoTestReport {
-    reports {
-        // SonarQube의 커버리지 분석을 위해서 필요
-        xml.required = true
-        // 개발 편의를 위해 추가
-        html.required = true
-    }
-}
-
 sonarqube {
     properties {
         //이후 정적 분석에 필요한 SonarQube 등이 따로 분리가 되면 설정 변경 필요
@@ -56,11 +46,22 @@ sonarqube {
     }
 }
 
+tasks.named("sonarqube") {
+    dependsOn jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        // SonarQube의 커버리지 분석을 위해서 필요
+        xml.required = true
+        // 개발 편의를 위해 추가
+        html.required = true
+    }
+    dependsOn test
+}
+
+
 tasks.named('test') {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
-}
-
-tasks.named("sonarqube") {
-    dependsOn jacocoTestReport
 }
