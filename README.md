@@ -57,3 +57,21 @@ http://localhost:8080/swagger-ui.html
 
 - OpenAPI 명세 (JSON)
 http://localhost:8080/v3/api-docs
+```
+
+# 코드 품질 분석
+* SonarQube 활용 (버그, 코드 스멜, 취약점)
+* Jacoco 활용 (테스트 커버리지)  
+* | 지표                | 기준            |
+  |-------------------|-------------------------|
+  | Vulnerabilities   | New Vulnerabilities = 0 |
+  | Bugs              | New Bugs = 0            |
+  | Code Smells       | New Code Smells = 0     |
+  | Hotspots Reviewed | 100% reviewed           |
+  | Coverage          | New Code ≥ 80%          |
+  | Duplications      | New Code ≤ 3%           |
+
+**분석 방법**:
+1. **정적 분석**: SonarQube 
+2. **커버리지**: JaCoCo
+```
