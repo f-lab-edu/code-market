@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.SignatureException;
@@ -24,12 +23,12 @@ public class JwtUtil {
     @Value("${jwt.token-expire-time}")
     private long expireTime;
 
-    private SecretKey SECRET_KEY;
+    private SecretKey secretKey;
 
     @PostConstruct
     public void init() {
         // 안전한 키 생성 (256비트 이상)
-        SECRET_KEY = Keys.hmacShaKeyFor(secretKeyRaw.getBytes(StandardCharsets.UTF_8));
+        secretKey = Keys.hmacShaKeyFor(secretKeyRaw.getBytes(StandardCharsets.UTF_8));
     }
 
     /*
@@ -43,7 +42,7 @@ public class JwtUtil {
                 .claim("email", email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expireTime))
-                .signWith(SECRET_KEY)
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -52,7 +51,7 @@ public class JwtUtil {
      */
     public void validateToken(String token) {
         try {
-            Jwts.parser().verifyWith(SECRET_KEY).build()
+            Jwts.parser().verifyWith(secretKey).build()
                     .parseSignedClaims(token);
         } catch (ExpiredJwtException e) {
             throw new IllegalStateException("토큰이 만료되었습니다");
@@ -79,7 +78,7 @@ public class JwtUtil {
      * 토큰으로부터 이메일 정보 추출
      */
     public String getEmail(String token) {
-        return Jwts.parser().verifyWith(SECRET_KEY).build()
+        return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload().get("email", String.class);
     }
 
@@ -87,7 +86,7 @@ public class JwtUtil {
      * 토큰으로부터 비밀번호 정보 추출
      */
     public String getPassword(String token) {
-        return Jwts.parser().verifyWith(SECRET_KEY).build()
+        return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload().get("password", String.class);
     }
 }
