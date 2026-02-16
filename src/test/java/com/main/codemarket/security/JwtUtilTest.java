@@ -1,5 +1,7 @@
 package com.main.codemarket.security;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,6 +10,11 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +48,7 @@ class JwtUtilTest {
     }
 
     @Test
-    @DisplayName("유효하지않은 이메일 값으로 토큰 생성 전에 예외를 던진다")
+    @DisplayName("유효하지않은 이메일 값으로 토큰 생성 시도하면 예외를 던진다")
     void createToken_failure() {
         //given
         String email = "";
@@ -51,7 +58,7 @@ class JwtUtilTest {
     }
 
     @Test
-    @DisplayName("토큰이 유효하면 예외를 던지지 않는다")
+    @DisplayName("토큰이 유효하면 토큰 생성시 예외를 던지지 않는다")
     void validateToken_success() {
         //given
         String email = "test@example.com";
@@ -63,14 +70,17 @@ class JwtUtilTest {
 
     @Test
     @DisplayName("토큰이 만료되었으면 만료 예외를 던진다")
-    void validateToken_expire() throws InterruptedException {
+    void validateToken_expire() {
         //given
         String email = "test@example.com";
         String token = jwtUtil.createToken(email);
-        Thread.sleep(2000L); //토큰 유효기간을 1초로 했기에 스레드를 2초간 잠들게 해 만료시킨다
-
-        //when & then
-        assertThrows(IllegalStateException.class, () -> jwtUtil.validateToken(token));
+        //토큰 유효기간이 만료되었는지 확인해보기 위해 최대 2초간, 100ms단위로 폴링하며 예외를 던지는지 확인한다
+        await().atMost(2, TimeUnit.SECONDS) //최대
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .untilAsserted(() -> {
+                    //when & then
+                    assertThrows(IllegalStateException.class, () -> jwtUtil.validateToken(token));
+                });
     }
 
     @Test
@@ -78,10 +88,18 @@ class JwtUtilTest {
     void validateToken_form() {
         //given
         String email = "test@example.com";
-        String token = jwtUtil.createToken(email);
+        SecretKey otherKey = Keys.hmacShaKeyFor("wrong-key-12345678901234567890123456789012".getBytes());
+        String token = Jwts.builder()
+                .claim("email", email)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000L))
+                .signWith(otherKey)
+                .compact();
+        String malformToken = "eyJhbGciOiJIUzI1NiJ9.invalid.payload.signature";
 
         //when & then
-        assertThrows(IllegalStateException.class, () -> jwtUtil.validateToken(token));
+        assertThrows(IllegalArgumentException.class, () -> jwtUtil.validateToken(token));
+        assertThrows(IllegalArgumentException.class, () -> jwtUtil.validateToken(malformToken));
     }
 
     @Test
