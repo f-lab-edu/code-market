@@ -13,6 +13,9 @@ public class LoginRequestDto {
     @Size(min = 8, max = 20, message = "비밀번호는 8자 ~ 20자까지 허용됩니다")
     private String password;
 
+    public LoginRequestDto() {
+    }
+
     public LoginRequestDto(String email, String password) {
         this.email = email;
         this.password = password;
