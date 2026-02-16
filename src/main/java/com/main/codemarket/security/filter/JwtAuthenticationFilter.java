@@ -47,17 +47,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //검증이 유효하다면 시큐리티 컨텍스트에 저장
         try {
             // 헤더 유효성 검증 후 토큰 추출
-            String token = jwtUtil.extractToken(request);
+            String header = request.getHeader("Authorization");
+            if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
+                throw new IllegalArgumentException("요청 헤더의 형식이 잘못되었습니다");
+            }
+            String token = jwtUtil.extractToken(header);
             //토큰 유효성 검증
             jwtUtil.validateToken(token);
 
-            String email = jwtUtil.getSubject(token);
+            String email = jwtUtil.getEmail(token);
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
             //지금 요청에서 이미 인증이 되어있는지 확인
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 SecurityContextHolder.getContext().setAuthentication(
-                        new UsernamePasswordAuthenticationToken(userDetails, null));
+                        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities()));
             }
         } catch (IllegalArgumentException e) {
             //헤더에서 토큰 추출 혹은 토큰의 서명이나 형식이 오류인 경우
@@ -72,7 +76,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //다음 필터로 진행
         filterChain.doFilter(request, response);
     }
-
-
 }
 

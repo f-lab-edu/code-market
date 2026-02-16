@@ -5,11 +5,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.SignatureException;
-import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -43,9 +41,14 @@ public class JwtUtil {
     }
 
     //토큰에서 구분값 추출
-    public String getSubject(String token) {
+    public String getEmail(String token) {
         return Jwts.parser().verifyWith(SECRET_KEY).build()
-                .parseSignedClaims(token).getPayload().getSubject();
+                .parseSignedClaims(token).getPayload().get("email", String.class);
+    }
+
+    public String getPassword(String token) {
+        return Jwts.parser().verifyWith(SECRET_KEY).build()
+                .parseSignedClaims(token).getPayload().get("password", String.class);
     }
 
     //토큰 유효한지 검사
@@ -60,18 +63,12 @@ public class JwtUtil {
         }
     }
 
-    public String extractToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("요청 헤더의 형식이 잘못되었습니다");
-        }
-
+    public String extractToken(String header) {
         String[] headers = header.split(" ");
         if (headers.length < 1) {
             throw new IllegalArgumentException("토큰의 형식이 잘못되었습니다");
         }
         return headers[1];
     }
-
 }
 
