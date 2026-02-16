@@ -1,5 +1,6 @@
 package com.main.codemarket.security.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.main.codemarket.security.CustomUserDetailsService;
 import com.main.codemarket.security.JwtUtil;
 import com.main.codemarket.security.filter.JwtAuthenticationFilter;
@@ -23,11 +24,13 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final ObjectMapper objectMapper;
 
-    public SecurityConfig(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService, AuthenticationConfiguration authenticationConfiguration) {
+    public SecurityConfig(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService, AuthenticationConfiguration authenticationConfiguration, ObjectMapper objectMapper) {
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
+        this.objectMapper = objectMapper;
     }
 
     /*
@@ -72,7 +75,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginFilter loginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
-        LoginFilter filter = new LoginFilter(authenticationManager, jwtUtil);
+        LoginFilter filter = new LoginFilter(authenticationManager, jwtUtil, objectMapper);
         filter.setAuthenticationManager(authenticationManager);
         return filter;
     }
