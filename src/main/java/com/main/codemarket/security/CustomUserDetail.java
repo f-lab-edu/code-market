@@ -7,8 +7,12 @@ import java.util.Collection;
 
 public class CustomUserDetail implements UserDetails {
     private String email;
-    private String username;
     private String password;
+
+    public CustomUserDetail(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -22,10 +26,6 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
         return email;
     }
 }
