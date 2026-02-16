@@ -1,12 +1,15 @@
 package com.main.codemarket.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.main.codemarket.security.CustomUserDetail;
 import com.main.codemarket.security.JwtUtil;
+import com.main.codemarket.security.dto.LoginRequestDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -18,20 +21,28 @@ import java.io.IOException;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final ObjectMapper objectMapper;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, ObjectMapper objectMapper) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.objectMapper = objectMapper;
+        setFilterProcessesUrl("/member/login");
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String header = request.getHeader("Authorization");
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        LoginRequestDto loginRequestDto;
+        try {
+            loginRequestDto = objectMapper.readValue(request.getInputStream(), LoginRequestDto.class);
+        } catch (IOException e) {
+            throw new InternalAuthenticationServiceException("로그인 인증 시도 정보가 올바르지 않습니다");
+        }
+        String email = loginRequestDto.getEmail();
+        String password = loginRequestDto.getPassword();
 
         if (!StringUtils.hasText(email) || !StringUtils.hasText(password)) {
-            throw new IllegalArgumentException("요청 헤더에 로그인에 필요한 정보가 없습니다");
+            throw new IllegalArgumentException("요청 정보에 로그인에 필요한 정보가 없습니다");
         }
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);
@@ -41,14 +52,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth) throws IOException, ServletException {
         CustomUserDetail customUserDetail = (CustomUserDetail) auth.getPrincipal();
-        String email = customUserDetail.getEmail();
-
+        String email = customUserDetail.getUsername();
         String token = jwtUtil.createToken(email);
         response.addHeader("Authorization", "Bearer " + token);
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest req, HttpServletResponse res, AuthenticationException failed) {
-        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }
