@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
+    id "org.sonarqube" version "4.4.1.3373"
+    id 'jacoco'
 }
 
 group = 'com.codemarket'
@@ -18,8 +20,25 @@ repositories {
 }
 
 dependencies {
+    //비동기 테스트
+    testImplementation 'org.awaitility:awaitility:4.3.0'
+
+    //security test
+    testImplementation 'org.springframework.security:spring-security-test'
+
     // docker compose
     testAndDevelopmentOnly "org.springframework.boot:spring-boot-docker-compose"
+
+    //validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    //security
+    implementation "org.springframework.boot:spring-boot-starter-security"
 
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
@@ -32,6 +51,34 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
+sonarqube {
+    properties {
+        //이후 정적 분석에 필요한 SonarQube 등이 따로 분리가 되면 설정 변경 필요
+        property "sonar.projectKey", "com.codemarket:code-market"
+        property "sonar.projectName", "code-market"
+
+        // JaCoCo XML 리포트 경로
+        property "sonar.coverage.jacoco.xmlReportPaths",
+                "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    }
+}
+
+tasks.named("sonarqube") {
+    dependsOn jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        // SonarQube의 커버리지 분석을 위해서 필요
+        xml.required = true
+        // 개발 편의를 위해 추가
+        html.required = true
+    }
+    dependsOn test
+}
+
+
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
