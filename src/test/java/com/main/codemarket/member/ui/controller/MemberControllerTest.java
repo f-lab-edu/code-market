@@ -1,8 +1,8 @@
-package com.main.codemarket.member.application.service;
+package com.main.codemarket.member.ui.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.main.codemarket.member.application.service.MemberService;
 import com.main.codemarket.member.domain.entity.Member;
-import com.main.codemarket.member.ui.controller.MemberController;
 import com.main.codemarket.member.ui.dto.SignUpDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
