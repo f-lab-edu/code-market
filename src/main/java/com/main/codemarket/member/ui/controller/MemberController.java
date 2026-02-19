@@ -28,7 +28,8 @@ public class MemberController {
     @Operation(summary = "회원 가입", description = "새로운 회원을 생성한다.")
     @PostMapping("/sign-up")
     public ResponseEntity<String> signUp(@Valid @RequestBody SignUpDto signUpDto) {
-        memberService.signUp(SignUpDto.createMemberEntity(signUpDto, passwordEncoder));
+        String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
+        memberService.signUp(SignUpDto.createMemberEntity(signUpDto, encodedPassword));
         return ResponseEntity.ok("회원가입 성공");
     }
 }
