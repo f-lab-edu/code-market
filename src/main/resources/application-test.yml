@@ -23,3 +23,7 @@ spring:
       file: docker-compose.yml
       skip:
         in-tests: false
+
+jwt:
+  secret: your-super-secret-key-must-be-at-least-256-bits-long-for-hmac-sha256
+  token-expire-time: 3600000
