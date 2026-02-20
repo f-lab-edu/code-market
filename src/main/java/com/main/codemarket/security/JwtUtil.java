@@ -24,6 +24,8 @@ public class JwtUtil {
     private long expireTime;
 
     private SecretKey secretKey;
+    private static final String CLAIM_EMAIL = "email";
+    private static final String CLAIM_PASSWORD = "password";
 
     @PostConstruct
     public void init() {
@@ -79,14 +81,6 @@ public class JwtUtil {
      */
     public String getEmail(String token) {
         return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload().get("email", String.class);
-    }
-
-    /*
-     * 토큰으로부터 비밀번호 정보 추출
-     */
-    public String getPassword(String token) {
-        return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload().get("password", String.class);
+                .parseSignedClaims(token).getPayload().get(CLAIM_EMAIL, String.class);
     }
 }
