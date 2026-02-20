@@ -32,8 +32,8 @@ docs 폴더 아래에서 관리하고 있습니다.
 - 기능명세서
 
 # 브랜치 관리 전략
-Git Flow 규칙 준수   
-https://ujuc.github.io/2015/12/16/git-flow-github-flow-gitlab-flow/
+GitHub Flow 규칙 준수   
+https://devocean.sk.com/blog/techBoardDetail.do?ID=165571&boardType=techBlog
 
 # 커밋 규칙
 컨벤셔널 커밋 규칙 준수   
@@ -57,3 +57,21 @@ http://localhost:8080/swagger-ui.html
 
 - OpenAPI 명세 (JSON)
 http://localhost:8080/v3/api-docs
+```
+
+# 코드 품질 분석
+* SonarQube 활용 (버그, 코드 스멜, 취약점)
+* Jacoco 활용 (테스트 커버리지)  
+* | 지표                | 기준            |
+  |-------------------|-------------------------|
+  | Vulnerabilities   | New Vulnerabilities = 0 |
+  | Bugs              | New Bugs = 0            |
+  | Code Smells       | New Code Smells = 0     |
+  | Hotspots Reviewed | 100% reviewed           |
+  | Coverage          | New Code ≥ 80%          |
+  | Duplications      | New Code ≤ 3%           |
+
+**분석 방법**:
+1. **정적 분석**: SonarQube 
+2. **커버리지**: JaCoCo
+```

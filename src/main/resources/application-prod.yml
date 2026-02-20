@@ -10,16 +10,14 @@ server:
 spring:
   config:
     activate:
-      on-profile: test
+      on-profile: prod
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     show-sql: true
 
   docker:
     compose:
       enabled: true
       file: docker-compose.yml
-      skip:
-        in-tests: false
