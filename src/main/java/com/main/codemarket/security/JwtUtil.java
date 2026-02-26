@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -22,39 +23,35 @@ public class JwtUtil {
     @Value("${jwt.token-expire-time}")
     private long expireTime;
 
-    private SecretKey SECRET_KEY;
+    private SecretKey secretKey;
 
     @PostConstruct
     public void init() {
         // 안전한 키 생성 (256비트 이상)
-        SECRET_KEY = Keys.hmacShaKeyFor(secretKeyRaw.getBytes(StandardCharsets.UTF_8));
+        secretKey = Keys.hmacShaKeyFor(secretKeyRaw.getBytes(StandardCharsets.UTF_8));
     }
 
-    // 토큰 생성
+    /*
+     * 토큰 생성
+     */
     public String createToken(String email) {
+        if (!StringUtils.hasText(email)) {
+            throw new IllegalArgumentException("이메일은 토큰 생성의 필수 요소입니다");
+        }
         return Jwts.builder()
                 .claim("email", email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expireTime))
-                .signWith(SECRET_KEY)
+                .signWith(secretKey)
                 .compact();
     }
 
-    //토큰에서 구분값 추출
-    public String getEmail(String token) {
-        return Jwts.parser().verifyWith(SECRET_KEY).build()
-                .parseSignedClaims(token).getPayload().get("email", String.class);
-    }
-
-    public String getPassword(String token) {
-        return Jwts.parser().verifyWith(SECRET_KEY).build()
-                .parseSignedClaims(token).getPayload().get("password", String.class);
-    }
-
-    //토큰 유효한지 검사
+    /*
+     *토큰 유효한지 검사
+     */
     public void validateToken(String token) {
         try {
-            Jwts.parser().verifyWith(SECRET_KEY).build()
+            Jwts.parser().verifyWith(secretKey).build()
                     .parseSignedClaims(token);
         } catch (ExpiredJwtException e) {
             throw new IllegalStateException("토큰이 만료되었습니다");
@@ -63,12 +60,33 @@ public class JwtUtil {
         }
     }
 
+    /*
+     * 헤더로부터 토큰 추출
+     */
     public String extractToken(String header) {
+        if (!StringUtils.hasText(header)) {
+            throw new IllegalArgumentException("Authorization 헤더가 없습니다");
+        }
         String[] headers = header.split(" ");
-        if (headers.length < 1) {
-            throw new IllegalArgumentException("토큰의 형식이 잘못되었습니다");
+        if (headers.length != 2 || !header.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("올바른 Bearer 토큰 형식이 아닙니다");
         }
         return headers[1];
     }
-}
 
+    /*
+     * 토큰으로부터 이메일 정보 추출
+     */
+    public String getEmail(String token) {
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().get("email", String.class);
+    }
+
+    /*
+     * 토큰으로부터 비밀번호 정보 추출
+     */
+    public String getPassword(String token) {
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().get("password", String.class);
+    }
+}

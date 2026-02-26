@@ -20,6 +20,9 @@ repositories {
 }
 
 dependencies {
+    //비동기 테스트
+    testImplementation 'org.awaitility:awaitility:4.3.0'
+
     //security test
     testImplementation 'org.springframework.security:spring-security-test'
 

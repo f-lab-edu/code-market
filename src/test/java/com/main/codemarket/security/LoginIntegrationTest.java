@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class LoginIntegrationTest {
+class LoginIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,25 +36,27 @@ public class LoginIntegrationTest {
     @Autowired
     private MemberRepository memberRepository;
 
-    private Member member;
-
     private LoginRequestDto loginRequestDto;
 
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void set_up() {
         loginRequestDto = new LoginRequestDto("test@example.com", "test_password");
         passwordEncoder = new BCryptPasswordEncoder();
+
+        memberRepository.deleteAll();
     }
 
     @Test
     @DisplayName("로그인 요청을 올바른 입력값으로 요청하면 클라이언트는 새로운 토큰 값을 리턴받는다")
     void login_success() throws Exception {
         //given
-        String encryptedPassword = passwordEncoder.encode("test_password");
-        member = Member.createMember("test@example.com", "test_user", encryptedPassword);
-        memberRepository.save(member);
+        //요청 dto 와 동일한 값으로 회원 생성
+        String email = loginRequestDto.getEmail();
+        String username = "test_user";
+        String password = loginRequestDto.getPassword();
+        this.saveMember(email, username, password);
 
         //when
         ResultActions resultActions = mockMvc.perform(post("/member/login")
@@ -61,7 +64,7 @@ public class LoginIntegrationTest {
                 .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
-        resultActions.andExpect(status().is2xxSuccessful());
+        resultActions.andExpect(status().isOk());
 
         //헤더 형식이 맞다면 토큰이 발급된 것으로 간주  
         MvcResult mvcResult = resultActions.andReturn();
@@ -73,14 +76,23 @@ public class LoginIntegrationTest {
     @Test
     @DisplayName("로그인 요청을 올바르지 않은 입력값으로 요청하면 클라이언트는 401을 리턴받는다")
     void login_fail() throws Exception {
-        //given
-        member = Member.createMember("test_fail@example.com", "test_user", "test_password");
-        memberRepository.save(member);
+        // given
+        // 비밀번호가 요청 정보와 다른 경우
+        String email = loginRequestDto.getEmail();
+        String username = "test_user";
+        String password = "wrong_password";
+        this.saveMember(email, username, password);
 
         //when & then
         mockMvc.perform(post("/member/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto))
         ).andExpect(status().isUnauthorized());
+    }
+
+    private void saveMember(String email, String username, String rawPassword) {
+        String encryptedPassword = passwordEncoder.encode(rawPassword);
+        Member member = Member.createMember(email, username, encryptedPassword);
+        memberRepository.save(member);
     }
 }

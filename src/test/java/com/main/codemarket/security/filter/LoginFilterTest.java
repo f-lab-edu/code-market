@@ -11,8 +11,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -24,20 +22,13 @@ class LoginFilterTest {
     private AuthenticationManager authenticationManager;
     @Mock
     private JwtUtil jwtUtil;
-
-    private ObjectMapper objectMapper;
-
-
     private LoginFilter loginFilter;
-
     private MockHttpServletRequest request;
-
     private MockHttpServletResponse response;
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper();
-        loginFilter = new LoginFilter(authenticationManager, jwtUtil, objectMapper);
+        loginFilter = new LoginFilter(authenticationManager, jwtUtil, new ObjectMapper());
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
 
@@ -47,7 +38,7 @@ class LoginFilterTest {
 
     @Test
     @DisplayName("인증에 필요한 응답 값을 파싱하고, 인증을 진행한다")
-    void attemptAuthentication_success() throws IOException {
+    void attemptAuthentication_success() {
         //given
         String jsonBody = "{\"email\":\"test@test.com\",\"password\":\"123456789\"}";
         request.setContent(jsonBody.getBytes(StandardCharsets.UTF_8));
@@ -83,7 +74,6 @@ class LoginFilterTest {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> loginFilter.attemptAuthentication(request, response));
 
-
         //given
         String jsonBodyWithEmptyPassword = "{\"email\":\"test@test.com\",\"password\":\"\"}";
         request.setContent(jsonBodyWithEmptyPassword.getBytes(StandardCharsets.UTF_8));
@@ -91,6 +81,5 @@ class LoginFilterTest {
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> loginFilter.attemptAuthentication(request, response));
-
     }
 }
